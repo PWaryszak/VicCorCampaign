@@ -53,7 +53,8 @@ range(VicCorData$C.percent)#  0.001 33.295
 
 
 #Plot Mg/ha of C-stock===========
-VicCorData <- read.csv("VicCorData.csv")
+VicCorData <- read.csv("VicCoreData.csv")
+VicCorData $habitat <- factor(VicCorData $habitat, levels = c("Saltmarsh", "Mangrove","Seagrass"))
 
 core_carbon <- VicCorData %>% 
   select(CarbonStock.Mgha_CORRECTED, C.percent, habitat,core)%>%
@@ -75,7 +76,7 @@ ggplot(core_carbon, aes(habitat, mean.stock))  +
   geom_point(aes(color = habitat, size = 3)) +
   geom_errorbar( aes(ymin = mean.stock + mean.stock.SE,
                      ymax = mean.stock - mean.stock.SE), width=.2)+
-  labs(x= "", y = bquote('Carbon Accretion Rate  ' (Mg*~ha^-1 ~y^-1)))+
+  labs(x= "", y = bquote('Carbon Stock  ' (Mg*~ha^-1 ~y^-1)))+
   #facet_grid(.~)+
   #ggtitle("Carbon Accretion Rates in WPP & PPB habitats")+
   theme_bw() +
