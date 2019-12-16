@@ -8,17 +8,20 @@ MAR <- data.frame( site_habitat = c("Fren_Mangrove","Fren_Seagrass","Fren_Saltma
                                     "Rhyl_Mangrove","Rhyl_Seagrass","Rhyl_Saltmarsh",
                                     "Swan_Seagrass","Swan_Saltmarsh",
                                     "Warn_Mangrove","Warn_Seagrass","Warn_Saltmarsh"),
-                             MAR = c(0.09, 0.12, NA,
-                                    0.104, NA, 0.046,
-                                    0.07, 0.13, 0.053,
-                                    0.046,0.103,
-                                    0.029, NA, 0.071))
+                   MAR = c(0.09, 0.12, NA,
+                           0.104, NA, 0.046,
+                           0.07, 0.13, 0.053,
+                           0.046,0.103,
+                           0.029, NA, 0.071))
 
-cn2019 <- read.csv("CN_2019CoringCampaign.csv")#LOAD DATA created in CN_DATA.R - Containes fumigated samples as well
+cn2019 <- read.csv("VicCoreData.csv")#LOAD DATA created in CN_DATA.R - Containes fumigated samples as well
 #Create variable bay (WPB = Western Port Bay sites, PPB = Port Phillip Bay sites)
 cn2019$bay <- ifelse(cn2019$site == "Fren"|cn2019$site == "Rhyl"|cn2019$site == "Koow"|
                        cn2019$site == "Warn",
                      "WPB","PPB")
+
+cn2019 <- cn2019 %>%  unite( "site_habitat", c("site","habitat"), sep = "_", remove = F)
+
 
 #Join Pere's above data to Master data of cn2019:
 cars <-  left_join(cn2019, MAR, by = "site_habitat") %>%
@@ -26,16 +29,13 @@ cars <-  left_join(cn2019, MAR, by = "site_habitat") %>%
   mutate (Stock = "Belowground")
 
 cars30<- filter(cars, DepthTo.cm <= 30 ) %>%  #till 30 cm deep because that is how deep the Age-dating was done to.
-  group_by(site_habitat,core) %>%
-  #1 g/cm2 = 100 tonnes per hectare, hence multiplication of CAR_gcm2y * 100
-  mutate(Total_CAR_30cm = mean(CAR_gcm2y[DepthTo.cm <=30]*100)) %>% #estimate %OC by mean of %OC from 0 cm to 30 cm
   group_by(habitat) %>%
-  summarise(AV = mean(Total_CAR_30cm, na.rm = T),
-            SD = sd(Total_CAR_30cm, na.rm = T),
-            N  = 4, #type by hand off MAR file above
+  summarise(AV = weighted.mean(CAR_gcm2y*100, na.rm = T), #1 g/cm2 = 100 tonnes per hectare
+            SD = sd(CAR_gcm2y*100, na.rm = T),
+            N  = n(), 
             SE = SD / sqrt(N))
 cars30
-cars$habitat <- factor(cars$habitat, levels = c("Saltmarsh", "Mangrove","Seagrass"))
+cars30$habitat <- factor(cars30$habitat, levels = c("Saltmarsh", "Mangrove","Seagrass"))
 
 ggplot(cars30, aes(habitat, AV))  +
   geom_point(aes(color = habitat, size = 3)) +
