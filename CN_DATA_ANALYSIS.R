@@ -6,7 +6,7 @@ library(sjPlot)
 library(nlme)
 library(sjmisc)
 
-cn2019 <- read.csv("CN_2019CoringCampaign.csv")#LOAD DATA created in CN_DATA.R
+cn2019 <- read.csv("VIC_CN.csv")       #LOAD DATA created in CN_DATA.R
 cn2019$habitat <- factor(cn2019$habitat,
                          levels = c("Seagrass","Saltmarsh","Mangrove"))
 dim(cn2019)#2233   49
@@ -91,7 +91,6 @@ ggplot(core_carbon, aes(habitat, mean.stock))  +
 
 
 #BoxPlot OC(%) By habitat:=======
-cn2019 <- read.csv("CN_2019CoringCampaign.csv")#LOAD DATA created in CN_DATA.R - Containes fumigated samples as well
 cn2019$habitat <- factor(cn2019$habitat, levels = c("Saltmarsh", "Mangrove","Seagrass"))
 
 ggplot(cn2019, aes(x = habitat, y = C.percent, color=habitat)) +
@@ -111,7 +110,7 @@ ggplot(cn2019, aes(x = habitat, y = C.percent, color=habitat)) +
 
 
 #Plot Fumigated vs non-fumigated==========
-cn<- read.csv("CN_2019CoringCampaign.csv")
+cn<- cn2019
 cn$habitat <- factor(cn$habitat,levels = c("Saltmarsh","Mangrove","Seagrass"))
 
 c1 <- ggplot(cn, aes(x = CPb, y = C.percent)) +
